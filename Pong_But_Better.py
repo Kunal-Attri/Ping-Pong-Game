@@ -15,6 +15,10 @@ window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Ping Pong")
 DIRECTION = [-1, 1]
 ANGLE = [(1, 2), (1, 1), (2, 1)]
+WINNING_SCORE = 5
+
+player_one_score = 0
+player_two_score = 0
 
 # COLORS
 BLACK = (0, 0, 0)
@@ -24,7 +28,7 @@ WHITE = (255, 255, 255)
 
 # BALL INIT
 RADIUS = 15
-DEFAULT_BALL_VELOCITY = 0.08
+DEFAULT_BALL_VELOCITY = 0.2
 ball_x = WIDTH / 2 - RADIUS
 ball_y = HEIGHT / 2 - RADIUS
 ball_velocity_x = DEFAULT_BALL_VELOCITY
@@ -37,8 +41,8 @@ dummy_ball_velocity_y = DEFAULT_BALL_VELOCITY
 # PADDLES INIT
 PADDLE_WIDTH = 20
 PADDLE_HEIGHT = 120
-PADDLE_VELOCITY_UP = -0.15
-PADDLE_VELOCITY_DOWN = 0.15
+PADDLE_VELOCITY_UP = -0.4
+PADDLE_VELOCITY_DOWN = 0.4
 LEFT_PADDLE_X = 100 - PADDLE_WIDTH / 2
 RIGHT_PADDLE_X = WIDTH - LEFT_PADDLE_X
 left_paddle_y = HEIGHT / 2 - PADDLE_HEIGHT / 2
@@ -106,6 +110,11 @@ while run:
         dummy_ball_velocity_y *= -1
     # When ball goes out of left or right window -> Ball must reset
     if ball_x <= 0 + RADIUS or ball_x >= WIDTH - RADIUS:
+        if ball_x <= 0 + RADIUS:
+            player_two_score += 1
+        else:
+            player_one_score += 1
+
         ball_x = WIDTH / 2 - RADIUS
         ball_y = HEIGHT / 2 - RADIUS
         dummy_ball_x = WIDTH / 2 - RADIUS
@@ -192,10 +201,12 @@ while run:
 
         if left_gadget_activated == 2:
             left_paddle_y = ball_y
+            second_left_paddle_y = ball_y
             left_gadget_activated = 0
             left_gadget_remaining -= 1
         if right_gadget_activated == 2:
             right_paddle_y = ball_y
+            second_right_paddle_y = ball_y
             right_gadget_activated = 0
             right_gadget_remaining -= 1
     elif gadget_pair == 2:
@@ -238,6 +249,19 @@ while run:
     second_left_paddle_y += second_left_paddle_velocity
     second_right_paddle_y += second_right_paddle_velocity
 
+    # Scoreboard
+    font = pygame.font.SysFont('calibri', 32)
+
+    score_1 = font.render("Player 1: " + str(player_one_score), True, WHITE)
+    window.blit(score_1, (25, 25))
+    score_2 = font.render("Player 2: " + str(player_two_score), True, WHITE)
+    window.blit(score_2, (825, 25))
+
+    gad_left_1 = font.render("Gadget left: " + str(left_gadget_remaining), True, WHITE)
+    window.blit(gad_left_1, (25, 65))
+    gad_left_2 = font.render("Gadget left: " + str(right_gadget_remaining), True, WHITE)
+    window.blit(gad_left_1, (825, 65))
+
     # Objects - Balls and Paddles
     pygame.draw.circle(window, BLUE, (ball_x, ball_y), RADIUS)
     pygame.draw.rect(window, RED, pygame.Rect(LEFT_PADDLE_X, left_paddle_y, PADDLE_WIDTH, PADDLE_HEIGHT))
@@ -254,5 +278,16 @@ while run:
         pygame.draw.circle(window, WHITE, (LEFT_PADDLE_X + 10, left_paddle_y + 10), 4)
     if right_gadget_activated == 1:
         pygame.draw.circle(window, WHITE, (RIGHT_PADDLE_X + 10, right_paddle_y + 10), 4)
+
+    # Endscreen
+    winning_font = pygame.font.SysFont("callibri", 32)
+    if player_one_score >= WINNING_SCORE:
+        window.fill(BLACK)
+        endscreen = winning_font.render("Player 1 won!!!!", True, WHITE)
+        window.blit(endscreen, (200, 250))
+    if player_two_score >= WINNING_SCORE:
+        window.fill(BLACK)
+        endscreen = winning_font.render("Player 2 won!!!!", True, WHITE)
+        window.blit(endscreen, (200, 250))
 
     pygame.display.update()
