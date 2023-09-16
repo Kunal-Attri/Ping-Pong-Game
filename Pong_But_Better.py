@@ -15,6 +15,7 @@ ANGLE = [(1, 2), (1, 1), (2, 1)]
 BLACK = (0, 0, 0)
 BLUE = (0, 0, 255)
 RED = (255, 0, 0)
+WHITE = (255, 255, 255)
 
 # BALL INIT
 RADIUS = 15
@@ -36,6 +37,13 @@ right_paddle_y = left_paddle_y
 left_paddle_velocity = 0
 right_paddle_velocity = 0
 
+# GADGETS
+left_flash_activated = False
+right_flash_activated = False
+DEFAULT_GADGET_AMOUNT = 5
+left_gadget_remaining = DEFAULT_GADGET_AMOUNT
+right_gadget_remaining = DEFAULT_GADGET_AMOUNT
+
 # MAIN LOOP
 run = True
 while run:
@@ -48,14 +56,18 @@ while run:
             # Right Player - Up and Down keys
             if event.key == pygame.K_UP:
                 right_paddle_velocity = PADDLE_VELOCITY_UP
-            if event.key == pygame.K_DOWN:
+            elif event.key == pygame.K_DOWN:
                 right_paddle_velocity = PADDLE_VELOCITY_DOWN
+            elif event.key == pygame.K_RIGHT and right_gadget_remaining:
+                right_flash_activated = True
 
             # Left Player - W and S keys
             if event.key == pygame.K_w:
                 left_paddle_velocity = PADDLE_VELOCITY_UP
-            if event.key == pygame.K_s:
+            elif event.key == pygame.K_s:
                 left_paddle_velocity = PADDLE_VELOCITY_DOWN
+            elif event.key == pygame.K_d and left_gadget_remaining:
+                left_flash_activated = True
 
         if event.type == pygame.KEYUP:
             left_paddle_velocity = 0
@@ -97,6 +109,20 @@ while run:
         ball_x = RIGHT_PADDLE_X
         ball_velocity_x *= -1
 
+    # Gadgets
+    if left_flash_activated:
+        if LEFT_PADDLE_X <= ball_x <= LEFT_PADDLE_X + PADDLE_WIDTH and left_paddle_y <= ball_y <= left_paddle_y + PADDLE_HEIGHT:
+            ball_x = LEFT_PADDLE_X + PADDLE_WIDTH
+            ball_velocity_x *= -3.5
+            left_flash_activated = False
+            left_gadget_remaining -= 1
+    if right_flash_activated:
+        if RIGHT_PADDLE_X <= ball_x <= RIGHT_PADDLE_X + PADDLE_WIDTH and right_paddle_y <= ball_y <= right_paddle_y + PADDLE_HEIGHT:
+            ball_x = RIGHT_PADDLE_X
+            ball_velocity_x *= -3.5
+            right_flash_activated = False
+            right_gadget_remaining -= 1
+
     # Movements
     ball_x += ball_velocity_x
     ball_y += ball_velocity_y
@@ -107,4 +133,10 @@ while run:
     pygame.draw.circle(window, BLUE, (ball_x, ball_y), RADIUS)
     pygame.draw.rect(window, RED, pygame.Rect(LEFT_PADDLE_X, left_paddle_y, PADDLE_WIDTH, PADDLE_HEIGHT))
     pygame.draw.rect(window, RED, pygame.Rect(RIGHT_PADDLE_X, right_paddle_y, PADDLE_WIDTH, PADDLE_HEIGHT))
+
+    if left_flash_activated:
+        pygame.draw.circle(window, WHITE, (LEFT_PADDLE_X + 10, left_paddle_y + 10), 4)
+    if right_flash_activated:
+        pygame.draw.circle(window, WHITE, (RIGHT_PADDLE_X + 10, right_paddle_y + 10), 4)
+
     pygame.display.update()
