@@ -1,4 +1,5 @@
 import pygame
+import random
 
 pygame.init()
 
@@ -7,6 +8,8 @@ WIDTH = 1000
 HEIGHT = 600
 window = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Ping Pong")
+DIRECTION = [-1, 1]
+ANGLE = [(1, 2), (1, 1), (2, 1)]
 
 # COLORS
 BLACK = (0, 0, 0)
@@ -17,14 +20,15 @@ RED = (255, 0, 0)
 RADIUS = 15
 BALL_X = WIDTH / 2 - RADIUS
 BALL_Y = HEIGHT / 2 - RADIUS
-BALL_VELOCITY_X = 0.15
-BALL_VELOCITY_Y = 0.15
+DEFAULT_BALL_VELOCITY = 0.08
+BALL_VELOCITY_X = DEFAULT_BALL_VELOCITY
+BALL_VELOCITY_Y = DEFAULT_BALL_VELOCITY
 
 # PADDLES INIT
 PADDLE_WIDTH = 20
 PADDLE_HEIGHT = 120
-PADDLE_VELOCITY_UP = -0.18
-PADDLE_VELOCITY_DOWN = 0.18
+PADDLE_VELOCITY_UP = -0.15
+PADDLE_VELOCITY_DOWN = 0.15
 LEFT_PADDLE_X = 100 - PADDLE_WIDTH / 2
 LEFT_PADDLE_Y = HEIGHT / 2 - PADDLE_HEIGHT / 2
 RIGHT_PADDLE_X = WIDTH - LEFT_PADDLE_X
@@ -66,8 +70,12 @@ while run:
     if BALL_X <= 0 + RADIUS or BALL_X >= WIDTH - RADIUS:
         BALL_X = WIDTH / 2 - RADIUS
         BALL_Y = HEIGHT / 2 - RADIUS
-        BALL_VELOCITY_X *= -1
-        BALL_VELOCITY_Y *= -1
+
+        ball_direction = random.choice(DIRECTION)
+        ball_angle = random.choice(ANGLE)
+        BALL_VELOCITY_X = DEFAULT_BALL_VELOCITY if BALL_VELOCITY_X < 0 else -DEFAULT_BALL_VELOCITY
+        BALL_VELOCITY_X = ball_angle[0] * BALL_VELOCITY_X
+        BALL_VELOCITY_Y = ball_direction * ball_angle[1] * DEFAULT_BALL_VELOCITY
 
     # Paddle's Movement Controls
     if LEFT_PADDLE_Y <= 0:
