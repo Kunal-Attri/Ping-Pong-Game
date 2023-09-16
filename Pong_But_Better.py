@@ -38,6 +38,8 @@ left_paddle_velocity = 0
 right_paddle_velocity = 0
 
 # GADGETS
+left_smash_activated = False
+right_smash_activated = False
 left_flash_activated = False
 right_flash_activated = False
 DEFAULT_GADGET_AMOUNT = 5
@@ -59,6 +61,8 @@ while run:
             elif event.key == pygame.K_DOWN:
                 right_paddle_velocity = PADDLE_VELOCITY_DOWN
             elif event.key == pygame.K_RIGHT and right_gadget_remaining:
+                right_smash_activated = True
+            elif event.key == pygame.K_LEFT and right_gadget_remaining:
                 right_flash_activated = True
 
             # Left Player - W and S keys
@@ -67,6 +71,8 @@ while run:
             elif event.key == pygame.K_s:
                 left_paddle_velocity = PADDLE_VELOCITY_DOWN
             elif event.key == pygame.K_d and left_gadget_remaining:
+                left_smash_activated = True
+            elif event.key == pygame.K_a and left_gadget_remaining:
                 left_flash_activated = True
 
         if event.type == pygame.KEYUP:
@@ -110,18 +116,27 @@ while run:
         ball_velocity_x *= -1
 
     # Gadgets
-    if left_flash_activated:
+    if left_smash_activated:
         if LEFT_PADDLE_X <= ball_x <= LEFT_PADDLE_X + PADDLE_WIDTH and left_paddle_y <= ball_y <= left_paddle_y + PADDLE_HEIGHT:
             ball_x = LEFT_PADDLE_X + PADDLE_WIDTH
-            ball_velocity_x *= -3.5
-            left_flash_activated = False
+            ball_velocity_x *= 3.5
+            left_smash_activated = False
             left_gadget_remaining -= 1
-    if right_flash_activated:
+    if right_smash_activated:
         if RIGHT_PADDLE_X <= ball_x <= RIGHT_PADDLE_X + PADDLE_WIDTH and right_paddle_y <= ball_y <= right_paddle_y + PADDLE_HEIGHT:
             ball_x = RIGHT_PADDLE_X
-            ball_velocity_x *= -3.5
-            right_flash_activated = False
+            ball_velocity_x *= 3.5
+            right_smash_activated = False
             right_gadget_remaining -= 1
+    if left_flash_activated:
+        left_paddle_y = ball_y
+        left_flash_activated = False
+        left_gadget_remaining -= 1
+    if right_flash_activated:
+        right_paddle_y = ball_y
+        right_flash_activated = False
+        right_gadget_remaining -= 1
+
 
     # Movements
     ball_x += ball_velocity_x
@@ -134,9 +149,9 @@ while run:
     pygame.draw.rect(window, RED, pygame.Rect(LEFT_PADDLE_X, left_paddle_y, PADDLE_WIDTH, PADDLE_HEIGHT))
     pygame.draw.rect(window, RED, pygame.Rect(RIGHT_PADDLE_X, right_paddle_y, PADDLE_WIDTH, PADDLE_HEIGHT))
 
-    if left_flash_activated:
+    if left_smash_activated:
         pygame.draw.circle(window, WHITE, (LEFT_PADDLE_X + 10, left_paddle_y + 10), 4)
-    if right_flash_activated:
+    if right_smash_activated:
         pygame.draw.circle(window, WHITE, (RIGHT_PADDLE_X + 10, right_paddle_y + 10), 4)
 
     pygame.display.update()
